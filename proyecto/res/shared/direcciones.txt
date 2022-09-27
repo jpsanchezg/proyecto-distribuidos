@@ -1,0 +1,5 @@
+clientes = localhost 5555
+servidores = localhost 6666
+S1 = localhost 6667
+S2 = localhost 6668
+S3 = localhost 6669

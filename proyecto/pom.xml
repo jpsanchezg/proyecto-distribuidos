@@ -172,51 +172,42 @@
         <version>1.2.1</version>
         <executions>
           <execution>
-              <id>monitor</id>
-              <goals>
-                  <goal>java</goal>
-              </goals>
-              <configuration>
-                  <mainClass>com.tec2.Monitor</mainClass>
-              </configuration>
+            <id>server</id>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>com.tec2.Server</mainClass>
+            </configuration>
           </execution>
           <execution>
-              <id>sensor</id>
-              <goals>
-                  <goal>java</goal>
-              </goals>
-              <configuration>
-                  <mainClass>com.tec2.Sensor</mainClass>
-              </configuration>
+            <id>cliente</id>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>com.tec2.Cliente</mainClass>
+            </configuration>
           </execution>
           <execution>
             <id>proxy</id>
             <goals>
-                <goal>java</goal>
+              <goal>java</goal>
             </goals>
             <configuration>
-                <mainClass>com.tec2.Proxy</mainClass>
+              <mainClass>com.tec2.Proxy</mainClass>
             </configuration>
-        </execution>
-        <execution>
-          <id>calidad</id>
-          <goals>
+          </execution>
+          <execution>
+            <id>health</id>
+            <goals>
               <goal>java</goal>
-          </goals>
-          <configuration>
-              <mainClass>com.tec2.Calidad</mainClass>
-          </configuration>
-      </execution>
-      <execution>
-        <id>health</id>
-        <goals>
-            <goal>java</goal>
-        </goals>
-        <configuration>
-            <mainClass>com.tec2.Health</mainClass>
-        </configuration>
-    </execution>
-      </executions>
+            </goals>
+            <configuration>
+              <mainClass>com.tec2.Health</mainClass>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
     </plugins>

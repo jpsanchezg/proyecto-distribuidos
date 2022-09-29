@@ -46,24 +46,24 @@ public class HealthControl {
             String[] valores = s.split(" ");
             if (valores[0].compareTo("S1") == 0) {
                 String address = "tcp://"+ valores[2]+":"+valores[3];
-                this.monitores.put("s1",address);
+                this.monitores.put("S1",address);
             }
             if (valores[0].compareTo("S2") == 0) {
                 String address = "tcp://"+ valores[2]+":"+valores[3];
-                this.monitores.put("s2", address);
+                this.monitores.put("S2", address);
             }
             if (valores[0].compareTo("S3") == 0) {
                 String address = "tcp://"+ valores[2]+":"+valores[3];
-                this.monitores.put("s3", address);
+                this.monitores.put("S3", address);
             }
         }
     }
 
     public void replyMonitor(){
         System.out.println("iniciando Servidor de salud");
-        Runnable s1 = new HealthThread("s1", monitores);
-        Runnable s2 = new HealthThread("s2", monitores);
-        Runnable s3 = new HealthThread("s3", monitores);
+        Runnable s1 = new HealthThread("S1", monitores);
+        Runnable s2 = new HealthThread("S2", monitores);
+        Runnable s3 = new HealthThread("S3", monitores);
         new Thread(s1).start();
         new Thread(s2).start();
         new Thread(s3).start();
@@ -92,13 +92,13 @@ public class HealthControl {
     public void reply(String tipo, HashMap<String,String> monitores) throws InterruptedException {
         String argRecovery="";
         Boolean started = false;
-        if(tipo.compareTo("temp")==0){
+        if(tipo.compareTo("S1")==0){
             argRecovery = "1";
         }
-        else if(tipo.compareTo("ph")==0){
+        else if(tipo.compareTo("S2")==0){
             argRecovery = "2";
         }
-        else if(tipo.compareTo("oxi")==0){
+        else if(tipo.compareTo("S3")==0){
             argRecovery = "3";
         }
         try (ZContext context = new ZContext()) {
@@ -142,7 +142,7 @@ public class HealthControl {
     public void recoverMonitor(String arg){
         Process recovery = null;
         try{
-            recovery = Runtime.getRuntime().exec("cmd.exe /c start mvn exec:java@monitor -D\"exec.args\"=\""+arg+"\"");
+            recovery = Runtime.getRuntime().exec("cmd.exe /c start mvn exec:java@server -D\"exec.args\"=\""+arg+"\"");
             Thread.sleep(20000);
         } catch(Exception e){
             e.printStackTrace();

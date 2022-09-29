@@ -3,33 +3,20 @@ package com.tec2.control;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
+
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ.Socket;
-import org.zeromq.ZMQ;
+
+import zmq.ZMQ;
 
 public class ProxyControl {
-
-    private String servidores;
-    private String clientes;
-
+    private HashMap<String,String> servidor;
     public ProxyControl() {
+        servidor = new HashMap<>();
         inicializarDireccion();
-    }
-
-    public void inicializarDireccion(){
-        String ruta = "res/shared/direcciones.txt";
-        ArrayList<String> lista = lecturaArchivo(ruta);
-        for(String s: lista){
-            String[] valores = s.split(" ");
-            if(valores[0].compareTo("clientes")==0){
-                this.clientes ="*:"+valores[3];
-            }
-            else if(valores[0].compareTo("servidores")==0){
-                this.servidores = "*:"+valores[3];
-            }
-        }
     }
 
     public ArrayList<String> lecturaArchivo(String ruta) {
@@ -41,7 +28,6 @@ public class ProxyControl {
             while (lector.hasNextLine()) {
                 String data = lector.nextLine();
                 lista.add(data);
-
             }
             lector.close();
         } catch (FileNotFoundException e) {
@@ -49,23 +35,91 @@ public class ProxyControl {
             e.printStackTrace();
         }
         return lista;
+    }
+
+    public void inicializarDireccion() {
+        String ruta = "res/shared/direcciones.txt";
+        ArrayList<String> lista = lecturaArchivo(ruta);
+        for (String s : lista) {
+
+            String[] valores = s.split(" ");
+            if (valores[0].compareTo("clientes") == 0) {
+                String address = "tcp://"+ valores[2]+":"+valores[3];
+                this.servidor.put("S1",address);
+            }
+        }
+    }
+
+    public void proxy(){
+        System.out.println("iniciando Servidor proxy");
+        Runnable s1 = new ProxyThread("S1", servidor);
+        new Thread(s1).start();
+    }
+}
+
+
+/**
+ * Clase auxiliar que se encarga de el levantamiento de monitores.
+ */
+class ProxyThread implements Runnable{
+
+    private String tipo;
+    private HashMap<String,String> servidores;
+    public ProxyThread(String tipo, HashMap<String,String> servidores) {
+        this.tipo=tipo;
+        this.servidores =servidores;
+    }
+    static Socket frontend;
+    static Socket backend;
+    public void reply(String tipo, HashMap<String,String> servidores) throws InterruptedException {
+        String argRecovery="";
+        Boolean started = false;
+
+        if(tipo.compareTo("S1")==0){
+            argRecovery = "1";
+        }
+        try (ZContext context = new ZContext()) {
+
+            Socket server = context.createSocket(SocketType.REP);
+            System.out.println(servidores.get(tipo));
+            server.connect(servidores.get(tipo));
+
+            System.out.println("Conectando con el servidor "+"tcp://"+this.servidores);
+
+            Socket publicher = context.createSocket(SocketType.PUB);
+            publicher.bind("tcp://10.43.100.229:12345");
+
+
+            System.out.println("enviado");
+            Thread.sleep(100);
+
+            while (!Thread.currentThread().isInterrupted()) {
+                //Inicialmente no se establece un timeout, en caso de que no se ejecute ningun monitor.
+                byte[] reply = server.recv(0);
+                publicher.send("mensaje",0);
+                server.setReceiveTimeOut(20000);
+                String metricaPh = new String(reply, ZMQ.CHARSET);
+                System.out.println("recibido " + metricaPh+" ");
+                System.out.println("enviando ok");
+                boolean test = server.send("ok");
+                System.out.println("test = "+test);
+            }
+            //ZMQ.proxy(publicher, subscriber, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
-    /**
-     * Mediante sockets XSUB/XPUB se enruta la informacion ofrecida por distintos publicadores hacia los suscriptores adecuados.
-     */
 
-    public void proxy(){
-        try (ZContext context = new ZContext()) {
-            System.out.println("Iniciando Proxy...");
-            Socket entrada = context.createSocket(SocketType.XSUB);
-            entrada.bind("tcp://"+this.clientes);
-            Socket salida = context.createSocket(SocketType.XPUB);
-            salida.bind("tcp://"+this.servidores);
-            ZMQ.proxy(entrada, salida, null);
-
+    @Override
+    public void run() {
+        try {
+            reply(tipo,servidores);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+
     }
 
 }

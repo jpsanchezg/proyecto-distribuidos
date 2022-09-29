@@ -22,22 +22,18 @@ public class ClienteModel {
     private String unidad;
     private String id;
 
-    public ClienteModel(int tipo, int intervalo, String archivo) {
+    public ClienteModel(int tipo, String archivo) {
         this.tipo = tipo;
-        this.intervalo = intervalo;
-        this.archivo = "res/sensores/"+archivo;
+        this.archivo = archivo;
         switch(tipo){
             case 1:
-            this.unidad = "C°";
-            this.id = "TEMP";
+            this.id = "S1";
             break;
             case 2:
-            this.unidad = "pH";
-            this.id = "PH";
+            this.id = "S2";
             break;
             case 3:
-            this.unidad = "Mg/L:";
-            this.id = "OXI";
+            this.id = "S3";
             break;
         }
     }

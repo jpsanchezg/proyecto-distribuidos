@@ -95,16 +95,17 @@ public class ServerControl {
             // System.out.println("Enviando mensajes de ok");
             Socket client = context.createSocket(SocketType.REQ);
             String address = "tcp://" + this.addressHealth;
+
             // System.out.println("requesting to " + addressHealth);
             client.bind(address);
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     String msg = String.valueOf(this.monitor.getTipoMonitor());
                     client.send(msg.getBytes(ZMQ.CHARSET), 0);
-                    // System.out.println("enviando: " + msg);
+                    //System.out.println("enviando: " + msg);
 
                     byte[] reply = client.recv();
-                    // System.out.println("Recibi: " + new String(reply, ZMQ.CHARSET));
+                    System.out.println("Recibi: " + new String(reply, ZMQ.CHARSET));
                     Thread.sleep(500);
 
                 } catch (Exception e) {
@@ -126,28 +127,20 @@ public class ServerControl {
      */
     public void subscribe() throws InterruptedException {
         try (ZContext context = new ZContext()) {
-            System.out.println("iniciando monitor");
+            System.out.println("iniciando servidor");
             Socket subcriber = context.createSocket(SocketType.SUB);
             String address = "tcp://" + this.address;
             subcriber.connect(address);
+
             System.out.println("listening to " + address);
             String topic = monitor.getId();
-            System.out.println("topic: " + topic);
-            subcriber.subscribe(topic.getBytes(ZMQ.CHARSET));
+            System.out.println("topic: " + monitor.getTipoMonitor());
+            //subcriber.subscribe(topic.getBytes(ZMQ.CHARSET));
+            byte[] repl = subcriber.recv(0);
+            System.out.println("Received " + ": [" + new String(repl, ZMQ.CHARSET) + "]");
+            //System.out.println("SUB: " + subcriber.recvStr());
             while (!Thread.currentThread().isInterrupted()) {
-                String msg = subcriber.recvStr(0);
-                String a[] = msg.split(" ");
-                float valor = Float.parseFloat(a[1]);
-                if (checkValor(valor)) {
-                    System.out.println(msg);
-                    escribirArchivo(msg);
-                } else {
-                    new Thread(() -> {
-                        System.out.println("El valor " + valor + " esta fuera de rango, enviando alarma");
-                    }).start();
-
-                }
-
+                System.out.println("SUB: " + subcriber.recvStr());
             }
         }
     }

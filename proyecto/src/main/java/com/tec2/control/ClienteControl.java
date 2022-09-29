@@ -22,18 +22,18 @@ public class ClienteControl {
     public ClienteControl() {
     }
 
-    public ClienteControl(int tipo, int intervalo, String ruta) throws InterruptedException {
+    public ClienteControl(int tipo, String ruta) throws InterruptedException {
         inicializarDireccion();
         // Inicializamos parametros del cliente
-        this.cliente = new ClienteModel(tipo, intervalo, ruta);
+        this.cliente = new ClienteModel(tipo, ruta);
         // Cargamos los porcentajes para los valores a generar
-        inicializarPorcentajes(this.cliente.getArchivo());
+        //inicializarPorcentajes(this.cliente.getArchivo());
         // Cargamos los rangos para la medicion
-        inicializarRangos(this.cliente.getId());
+        //inicializarRangos(this.cliente.getId());
 
-        System.out.println("valores: ");
-        System.out.println("min = " + min + " max = " + max);
-        System.out.println("correcto = " + correcto + " incorrecto = " + incorrecto + " error = " + errores);
+       // System.out.println("valores: ");
+      //  System.out.println("min = " + min + " max = " + max);
+        //System.out.println("correcto = " + correcto + " incorrecto = " + incorrecto + " error = " + errores);
     }
 
     /**
@@ -44,7 +44,7 @@ public class ClienteControl {
         ArrayList<String> lista = lecturaArchivo(ruta);
         for (String s : lista) {
             String[] valores = s.split(" ");
-            if (valores[0].compareTo("sensores") == 0) {
+            if (valores[0].compareTo("clientes") == 0) {
                 this.address = valores[2] + ":" + valores[3];
             }
         }
@@ -181,7 +181,7 @@ public class ClienteControl {
             publisher.connect(address);
             while (!Thread.currentThread().isInterrupted()) {
                 generarMetrica();
-                String msg = cliente.getId() + " " + cliente.getValor() + " " + cliente.getUnidad() + " " + getTime();
+                String msg = cliente.getId() + " " + cliente.getArchivo();
                 Thread.sleep(cliente.getIntervalo());
                 System.out.println("enviando " + msg);
                 if (inicializar == false) {

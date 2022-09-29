@@ -9,7 +9,7 @@ public class Cliente {
 
     public static void main(String args[]) throws InterruptedException {
         if (checkArgs(args)) {
-            control = new ClienteControl(Integer.parseInt(args[0]), "holacomo");
+            control = new ClienteControl(Integer.parseInt(args[0]), args[1]);
             control.publish();
         }
 

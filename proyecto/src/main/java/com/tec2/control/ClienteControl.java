@@ -9,6 +9,7 @@ import java.util.Scanner;
 import com.tec2.model.ClienteModel;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
+import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Socket;
 
 public class ClienteControl {
@@ -26,14 +27,6 @@ public class ClienteControl {
         inicializarDireccion();
         // Inicializamos parametros del cliente
         this.cliente = new ClienteModel(tipo, ruta);
-        // Cargamos los porcentajes para los valores a generar
-        //inicializarPorcentajes(this.cliente.getArchivo());
-        // Cargamos los rangos para la medicion
-        //inicializarRangos(this.cliente.getId());
-
-       // System.out.println("valores: ");
-      //  System.out.println("min = " + min + " max = " + max);
-        //System.out.println("correcto = " + correcto + " incorrecto = " + incorrecto + " error = " + errores);
     }
 
     /**
@@ -50,28 +43,6 @@ public class ClienteControl {
         }
     }
 
-    /**
-     * Este metodo inicializa los porcentajes para los valores correctos,
-     * incorrectos y fuera de rango
-     *
-     * @param ruta ruta del archivo de inicializacion de porcentajes
-     */
-    public void inicializarPorcentajes(String ruta) {
-        ArrayList<String> lineas = lecturaArchivo(ruta);
-
-        for (String s : lineas) {
-            String[] valores = s.split(" ");
-            if (valores[0].compareTo("correcto") == 0) {
-                this.correcto = Float.parseFloat(valores[2]);
-
-            } else if (valores[0].compareTo("incorrectos") == 0) {
-                this.incorrecto = Float.parseFloat(valores[2]);
-
-            } else {
-                this.errores = Float.parseFloat(valores[2]);
-            }
-        }
-    }
 
     /**
      * A partir de los porcentajes de valores, genera una metrica a partir de una
@@ -175,24 +146,31 @@ public class ClienteControl {
         try (ZContext context = new ZContext()) {
             boolean inicializar = false;
             System.out.println("iniciando cliente");
-            Socket publisher = context.createSocket(SocketType.PUB);
+            //System.out.println("Enviando mensajes de ok");
+            Socket client = context.createSocket(SocketType.REQ);
             String address = "tcp://" + this.address;
-            System.out.println("sending to " + address);
-            publisher.connect(address);
+            // System.out.println("requesting to " + addressHealth);
+            client.bind(address);
             while (!Thread.currentThread().isInterrupted()) {
-                generarMetrica();
-                String msg = cliente.getId() + " " + cliente.getArchivo();
-                Thread.sleep(cliente.getIntervalo());
-                System.out.println("enviando " + msg);
-                if (inicializar == false) {
-                    Thread.sleep(1000);
-                    inicializar = true;
-                }
-                publisher.send(msg, 0);
+                try {
+                    String msg = String.valueOf("thisnuts");
+                    client.send(msg.getBytes(ZMQ.CHARSET), 0);
+                    // System.out.println("enviando: " + msg);
 
+                    byte[] reply = client.recv();
+                    System.out.println("Recibi: " + new String(reply, ZMQ.CHARSET));
+                    Thread.sleep(500);
+                    //client.recv(0)
+                    //System.out.println();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
+}
+
 
     /*
      * public void subscribe() throws InterruptedException {
@@ -224,4 +202,4 @@ public class ClienteControl {
      * }
      */
 
-}
+

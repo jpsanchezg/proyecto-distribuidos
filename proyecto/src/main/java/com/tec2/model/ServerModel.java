@@ -68,10 +68,4 @@ public class ServerModel {
         this.archivo = archivo;
     }
 
-
-
-    @Override
-    public String toString() {
-        return "MonitorControl [archivo=" + archivo + ", tipoMonitor=" + tipoMonitor + "]";
-    }
 }

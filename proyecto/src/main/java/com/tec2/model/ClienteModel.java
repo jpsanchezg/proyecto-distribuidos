@@ -108,9 +108,6 @@ public class ClienteModel {
 
 
 
-    @Override
-    public String toString() {
-        return "SensorControl [archivo=" + archivo + ", intervalo=" + intervalo + ", tipo=" + tipo + "]";
-    }
+
 
 }

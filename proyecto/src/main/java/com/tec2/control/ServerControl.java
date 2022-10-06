@@ -61,30 +61,8 @@ public class ServerControl {
         return lista;
     }
 
-    /**
-     * Verifica que un valor dado este dentro del intervalo de valores aceptables
-     *
-     * @param valor cantidad a validar
-     * @return true si esta dentro del intervalo establecido, false de otra manera
-     */
-    public Boolean checkValor(float valor) {
-        if (valor < min || valor > max) {
-            return false;
-        }
-        return true;
-    }
 
-    public void escribirArchivo(String msg) {
-        try {
-            FileWriter lector = new FileWriter("res/monitores/registro.txt", true);
-            lector.write(msg + "\n");
-            lector.close();
-        } catch (IOException e) {
-            System.out.println("Error en la escritura del fichero.");
-            e.printStackTrace();
-        }
 
-    }
 
     /**
      * Abre un hilo a partir del cual enviara mensajes de request al healthcheck en

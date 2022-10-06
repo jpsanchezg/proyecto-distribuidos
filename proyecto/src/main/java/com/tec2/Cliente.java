@@ -2,6 +2,12 @@ package com.tec2;
 import com.tec2.control.ClienteControl;
 
 
+/**
+
+ * Para ejecutar el programa por favor ingrese el siguiente comando:
+ * Windows y Linux: mvn  exec:java@cliente -D"exec.args"="1 mensajedeprueba"
+ */
+
 
 public class Cliente {
 

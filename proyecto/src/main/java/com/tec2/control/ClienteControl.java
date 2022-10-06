@@ -44,57 +44,8 @@ public class ClienteControl {
     }
 
 
-    /**
-     * A partir de los porcentajes de valores, genera una metrica a partir de una
-     * semilla de generacion aleatoria
-     */
-    public void generarMetrica() {
-        float valor;
-        float seed = generarValor(0, 100);
-        if (seed >= 0 && seed <= correcto) {
-            valor = generarValor(min, max);
-            cliente.setValor(valor);
-        } else if (seed > correcto && seed <= (correcto + incorrecto)) {
-            float seedIncorrect = generarValor(0, 100);
-            if (seedIncorrect <= 50) {
-                valor = generarValor(0, max - 1);
-            } else {
-                valor = generarValor(1000, 2000);
-                valor = generarValor(max + 1, (max * 2));
-            }
 
-            cliente.setValor(valor);
 
-        } else if (seed > (correcto + incorrecto) && seed <= (correcto + incorrecto + errores)) {
-            valor = generarValor(0, -100);
-            cliente.setValor(valor);
-        }
-    }
-
-    /**
-     * A partir del archivo de rangos, inicializa los intervalos de los valores
-     * correctos
-     *
-     * @param tipo el tipo de metrica a la cual estan asociados los intervalos
-     */
-    public void inicializarRangos(String tipo) {
-        String ruta = "res/shared/rangos.txt";
-        ArrayList<String> lineas = lecturaArchivo(ruta);
-        for (String s : lineas) {
-            String[] valores = s.split(" ");
-            if (valores[0].compareTo(tipo) == 0) {
-                min = Float.parseFloat(valores[1]);
-                max = Float.parseFloat(valores[2]);
-            }
-        }
-    }
-
-    /**
-     * Lector simple de archivos
-     *
-     * @param ruta ruta del archivo a leer
-     * @return
-     */
     public ArrayList<String> lecturaArchivo(String ruta) {
 
         ArrayList<String> lista = new ArrayList<>();
@@ -113,34 +64,7 @@ public class ClienteControl {
         return lista;
     }
 
-    /**
-     * captura el tiempo actual, y le da formato como string
-     *
-     * @return instante de tiempo formateado
-     */
-    public String getTime() {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS");
-        LocalDateTime now = LocalDateTime.now();
-        return dtf.format(now);
-    }
 
-    /**
-     * Genera valores aleatorios entre un intervalo dado
-     *
-     * @param min valor minimo del intervalo
-     * @param max valor maximo del intervalo
-     * @return numero aleatorio generado
-     */
-    public float generarValor(float min, float max) {
-        return (float) ((Math.random() * (max - min)) + min);
-    }
-
-    /**
-     * Crea y se conecta al socket de tipo publicador, luego publica la informacion
-     * por el mismo.
-     *
-     * @throws InterruptedException
-     */
     public void publish() throws InterruptedException {
 
         try (ZContext context = new ZContext()) {
@@ -153,7 +77,7 @@ public class ClienteControl {
             client.bind(address);
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    String msg = String.valueOf("thisnuts");
+                    String msg = cliente.getArchivo();
                     client.send(msg.getBytes(ZMQ.CHARSET), 0);
                     // System.out.println("enviando: " + msg);
 

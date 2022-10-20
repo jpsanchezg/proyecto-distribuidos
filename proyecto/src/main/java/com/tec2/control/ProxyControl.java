@@ -81,13 +81,14 @@ class ProxyThread implements Runnable{
         try (ZContext context = new ZContext()) {
 
             Socket server = context.createSocket(SocketType.REP);
+            Socket publicher = context.createSocket(SocketType.PUB);
+
             System.out.println(servidores.get(tipo));
             server.connect(servidores.get(tipo));
 
             System.out.println("Conectando con el servidor "+"tcp://"+this.servidores);
 
-            Socket publicher = context.createSocket(SocketType.PUB);
-            publicher.bind("tcp://10.43.100.229:12345");
+            publicher.bind("tcp://10.43.100.229:6666");
 
 
             System.out.println("enviado");
@@ -96,13 +97,16 @@ class ProxyThread implements Runnable{
             while (!Thread.currentThread().isInterrupted()) {
                 //Inicialmente no se establece un timeout, en caso de que no se ejecute ningun monitor.
                 byte[] reply = server.recv(0);
-                publicher.send("mensaje",0);
+                publicher.send("mensaje");
                 server.setReceiveTimeOut(20000);
                 String metricaPh = new String(reply, ZMQ.CHARSET);
                 System.out.println("recibido " + metricaPh+" ");
                 System.out.println("enviando ok");
                 boolean test = server.send("ok");
+                boolean test2 = publicher.send(new String(reply, ZMQ.CHARSET));
+
                 System.out.println("test = "+test);
+                System.out.println("test del server = "+test2);
             }
             //ZMQ.proxy(publicher, subscriber, null);
         } catch (Exception e) {

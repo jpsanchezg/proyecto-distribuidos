@@ -108,15 +108,16 @@ public class ServerControl {
             System.out.println("iniciando servidor");
             Socket subcriber = context.createSocket(SocketType.SUB);
             String address = "tcp://" + this.address;
-            subcriber.connect(address);
-
+            subcriber.subscribe("".getBytes());
+            subcriber.connect("tcp://10.43.100.229:6666");
+            Thread.sleep(100);
             System.out.println("listening to " + address);
             String topic = monitor.getId();
             System.out.println("topic: " + monitor.getTipoMonitor());
-            //subcriber.subscribe(topic.getBytes(ZMQ.CHARSET));
+            System.out.println("SUB: " + subcriber.recvStr());
             byte[] repl = subcriber.recv(0);
             System.out.println("Received " + ": [" + new String(repl, ZMQ.CHARSET) + "]");
-            //System.out.println("SUB: " + subcriber.recvStr());
+            System.out.println("SUB: " + subcriber.recvStr());
             while (!Thread.currentThread().isInterrupted()) {
                 System.out.println("SUB: " + subcriber.recvStr());
             }

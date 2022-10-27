@@ -102,11 +102,16 @@ class ProxyThread implements Runnable{
                 String metricaPh = new String(reply, ZMQ.CHARSET);
                 System.out.println("recibido " + metricaPh+" ");
                 System.out.println("enviando ok");
-                boolean test = server.send("ok");
                 boolean test2 = publicher.send(new String(reply, ZMQ.CHARSET));
 
-                System.out.println("test = "+test);
+
                 System.out.println("test del server = "+test2);
+
+                publicher.setReceiveTimeOut(20000);
+
+                byte[] reverso = publicher.recv();
+                boolean tests = server.send(new String(reverso, ZMQ.CHARSET));
+                System.out.println("test server = "+tests);
             }
             //ZMQ.proxy(publicher, subscriber, null);
         } catch (Exception e) {

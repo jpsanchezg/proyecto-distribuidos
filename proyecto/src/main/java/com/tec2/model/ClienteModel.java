@@ -22,20 +22,8 @@ public class ClienteModel {
     private String unidad;
     private String id;
 
-    public ClienteModel(int tipo, String archivo) {
+    public ClienteModel(int tipo) {
         this.tipo = tipo;
-        this.archivo = archivo;
-        switch(tipo){
-            case 1:
-            this.id = "S1";
-            break;
-            case 2:
-            this.id = "S2";
-            break;
-            case 3:
-            this.id = "S3";
-            break;
-        }
     }
 
 

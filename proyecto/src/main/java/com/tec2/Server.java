@@ -5,7 +5,7 @@ import java.time.Instant;
 
 import com.tec2.control.ServerControl;
 
-
+//mvn exec:java@server -D"exec.args"="1"
 public class Server {
 
     private static ServerControl control;

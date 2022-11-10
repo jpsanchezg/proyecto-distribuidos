@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+
 import com.tec2.model.ServerModel;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -62,8 +63,6 @@ public class ServerControl {
     }
 
 
-
-
     /**
      * Abre un hilo a partir del cual enviara mensajes de request al healthcheck en
      * intervalos de 200 milisegundos
@@ -106,20 +105,41 @@ public class ServerControl {
     public void subscribe() throws InterruptedException {
         try (ZContext context = new ZContext()) {
             System.out.println("iniciando servidor");
-            Socket subcriber = context.createSocket(SocketType.SUB);
+            Socket subcriber = context.createSocket(SocketType.
+                SUB);
+            Socket publicher = context.createSocket(SocketType.PUB);
+
+
             String address = "tcp://" + this.address;
+
             subcriber.subscribe("".getBytes());
             subcriber.connect("tcp://10.43.100.229:6666");
+
+            publicher.bind("tcp://10.43.100.223:6666");
+            Thread.sleep(1000);
             Thread.sleep(100);
             System.out.println("listening to " + address);
             String topic = monitor.getId();
             System.out.println("topic: " + monitor.getTipoMonitor());
-            System.out.println("SUB: " + subcriber.recvStr());
-            byte[] repl = subcriber.recv(0);
-            System.out.println("Received " + ": [" + new String(repl, ZMQ.CHARSET) + "]");
-            System.out.println("SUB: " + subcriber.recvStr());
             while (!Thread.currentThread().isInterrupted()) {
-                System.out.println("SUB: " + subcriber.recvStr());
+                String mensaje = subcriber.recvStr();
+                System.out.println("SUB: " + mensaje);
+
+                if (mensaje.equals("mensajedeprueba2")) {
+
+
+
+                    String mensajederegreso = "Holamuybuenas";
+
+
+                    byte[] send = mensajederegreso.getBytes(ZMQ.CHARSET);
+
+
+                    String enviando = new String(send, ZMQ.CHARSET);
+                    System.out.println("envindo " + enviando);
+                    boolean test = publicher.send(send);
+                    System.out.println("test: " + test);
+                }
             }
         }
     }

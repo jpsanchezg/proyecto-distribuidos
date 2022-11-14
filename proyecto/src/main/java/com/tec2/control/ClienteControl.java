@@ -23,10 +23,10 @@ public class ClienteControl {
     public ClienteControl() {
     }
 
-    public ClienteControl(int tipo, String ruta) throws InterruptedException {
+    public ClienteControl(int tipo) throws InterruptedException {
         inicializarDireccion();
         // Inicializamos parametros del cliente
-        this.cliente = new ClienteModel(tipo, ruta);
+        this.cliente = new ClienteModel(tipo);
     }
 
     /**
@@ -77,15 +77,28 @@ public class ClienteControl {
             client.bind(address);
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    String msg = cliente.getArchivo();
-                    client.send(msg.getBytes(ZMQ.CHARSET), 0);
-                    // System.out.println("enviando: " + msg);
-
-                    byte[] reply = client.recv();
-                    System.out.println("Recibi: " + new String(reply, ZMQ.CHARSET));
-                    Thread.sleep(500);
-                    //client.recv(0)
-                    //System.out.println();
+                    int tipo = cliente.getTipo();
+                    if(tipo == 1){
+                        String msg ="traer";
+                        client.send(msg.getBytes(ZMQ.CHARSET), 0);
+                        byte[] reply = client.recv();
+                        System.out.println("Recibi: " + new String(reply, ZMQ.CHARSET));
+                        Thread.sleep(500);
+                    }
+                    if(tipo == 2){
+                        String msg ="agregar";
+                        client.send(msg.getBytes(ZMQ.CHARSET), 0);
+                        byte[] reply = client.recv();
+                        System.out.println("Recibi: " + new String(reply, ZMQ.CHARSET));
+                        Thread.sleep(500);
+                    }
+                    if(tipo == 3){
+                        String msg ="comprar";
+                        client.send(msg.getBytes(ZMQ.CHARSET), 0);
+                        byte[] reply = client.recv();
+                        System.out.println("Recibi: " + new String(reply, ZMQ.CHARSET));
+                        Thread.sleep(500);
+                    }
 
                 } catch (Exception e) {
                     e.printStackTrace();

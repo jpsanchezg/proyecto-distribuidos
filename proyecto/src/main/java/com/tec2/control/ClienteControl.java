@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
+
 import com.tec2.model.ClienteModel;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
@@ -19,14 +20,23 @@ public class ClienteControl {
     private String address;
 
     private ClienteModel cliente;
+    private Socket client;
+    int id = 0, cantidad = 0;
+    String mensaje, msg;
+    private static ClienteControl control;
 
     public ClienteControl() {
+        inicializarDireccion();
+        // Inicializamos parametros del cliente
     }
 
     public ClienteControl(int tipo) throws InterruptedException {
         inicializarDireccion();
         // Inicializamos parametros del cliente
         this.cliente = new ClienteModel(tipo);
+        if (tipo == 4) {
+            this.client.disconnect(address);
+        }
     }
 
     /**
@@ -37,13 +47,46 @@ public class ClienteControl {
         ArrayList<String> lista = lecturaArchivo(ruta);
         for (String s : lista) {
             String[] valores = s.split(" ");
-            if (valores[0].compareTo("clientes") == 0) {
+            if (valores[0].compareTo("proxy") == 0) {
                 this.address = valores[2] + ":" + valores[3];
             }
         }
     }
 
+    public void menu() throws InterruptedException {
+        boolean finalizo = false;
+        int opcion = 0;
 
+        while (!finalizo) {
+            System.out.println("escoge una de las siguientes opciones");
+            System.out.println("1. traer productos de la tienda");
+            System.out.println("2. Comprar productos");
+            System.out.println("3. salir");
+            Scanner leer = new Scanner(System.in);
+            opcion = leer.nextInt();
+            if (opcion == 1) {
+                this.cliente = new ClienteModel(opcion);
+                publish();
+            }
+            if (opcion == 2) {
+                this.cliente = new ClienteModel(opcion);
+                if(mensaje!= null){
+                    System.out.println(mensaje);
+                    System.out.println("escoge el id del producto que vas a comprar");
+                    id = leer.nextInt();
+                    System.out.println("di la cantidad que vas a comprar");
+                    cantidad = leer.nextInt();
+                    msg = "comprar-"+"id-" + id + "-cantidad-" + cantidad;
+                    publish();
+                }
+            }
+            if (opcion == 3) {
+                String address = "tcp://" + this.address;
+                this.client.disconnect(address);
+            }
+        }
+
+    }
 
 
     public ArrayList<String> lecturaArchivo(String ruta) {
@@ -66,77 +109,38 @@ public class ClienteControl {
 
 
     public void publish() throws InterruptedException {
-
         try (ZContext context = new ZContext()) {
             boolean inicializar = false;
-            System.out.println("iniciando cliente");
-            //System.out.println("Enviando mensajes de ok");
-            Socket client = context.createSocket(SocketType.REQ);
+            this.client = context.createSocket(SocketType.PAIR);
             String address = "tcp://" + this.address;
-            // System.out.println("requesting to " + addressHealth);
-            client.bind(address);
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    int tipo = cliente.getTipo();
-                    if(tipo == 1){
-                        String msg ="traer";
-                        client.send(msg.getBytes(ZMQ.CHARSET), 0);
-                        byte[] reply = client.recv();
-                        System.out.println("Recibi: " + new String(reply, ZMQ.CHARSET));
-                        Thread.sleep(500);
-                    }
-                    if(tipo == 2){
-                        String msg ="agregar";
-                        client.send(msg.getBytes(ZMQ.CHARSET), 0);
-                        byte[] reply = client.recv();
-                        System.out.println("Recibi: " + new String(reply, ZMQ.CHARSET));
-                        Thread.sleep(500);
-                    }
-                    if(tipo == 3){
-                        String msg ="comprar";
-                        client.send(msg.getBytes(ZMQ.CHARSET), 0);
-                        byte[] reply = client.recv();
-                        System.out.println("Recibi: " + new String(reply, ZMQ.CHARSET));
-                        Thread.sleep(500);
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
+            this.client.connect(address);
+            Thread.sleep(1000);
+            try {
+                int tipo = cliente.getTipo();
+                if (tipo == 1) {
+                    msg = "traer";
+                    byte[] reply2 = msg.getBytes(zmq.ZMQ.CHARSET);
+                    boolean tests = this.client.send(reply2, 0);
+                    byte[] recb = this.client.recv();
+                    mensaje = new String(recb, ZMQ.CHARSET);
+                    System.out.println("Recibi: " + mensaje);
+                    Thread.sleep(1000);
                 }
+                if (tipo == 2) {
+                    byte[] reply2 = msg.getBytes(zmq.ZMQ.CHARSET);
+                    boolean tests = this.client.send(reply2, 0);
+                    byte[] reply = client.recv();
+                    mensaje = new String(reply, ZMQ.CHARSET);
+                    System.out.println("Recibi: " + mensaje);
+                    Thread.sleep(500);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
 }
 
-
-    /*
-     * public void subscribe() throws InterruptedException {
-     * try (ZContext context = new ZContext()) {
-     * Socket subcriber = context.createSocket(SocketType.SUB);
-     * String address = "tcp://" + this.address;
-     * subcriber.connect(address);
-     * System.out.println("listening to " + address);
-     * String topic = monitor.getId();
-     * System.out.println("topic: " + topic);
-     * subcriber.subscribe(topic.getBytes(ZMQ.CHARSET));
-     * while (!Thread.currentThread().isInterrupted()) {
-     * String msg = subcriber.recvStr(0);
-     * String a[] = msg.split(" ");
-     * float valor = Float.parseFloat(a[1]);
-     * if (checkValor(valor)) {
-     * System.out.println(msg);
-     * escribirArchivo(msg);
-     * } else {
-     * new Thread(() -> {
-     * System.out.println("El valor " + valor +
-     * " esta fuera de rango, enviando alarma");
-     * }).start();
-     *
-     * }
-     *
-     * }
-     * }
-     * }
-     */
 
 

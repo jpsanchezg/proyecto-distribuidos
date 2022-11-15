@@ -1,9 +1,8 @@
 package com.tec2.control;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -18,7 +17,11 @@ public class ServerControl {
     private ServerModel monitor;
     private String address, addressHealth;
 
+    private ArrayList<String> basededatos;
+
     float min, max;
+
+    String id, cantidad;
 
     public ServerControl(int tipo) {
         this.monitor = new ServerModel(tipo);
@@ -29,10 +32,43 @@ public class ServerControl {
         }).start();
     }
 
+    public void leerbasededatos() {
+        String ruta = "res/basededatos/registro.txt";
+        ArrayList<String> lista = lecturaArchivo(ruta);
+        this.basededatos = lista;
+    }
+
+    public void escribirenlabasededatos() {
+        String ruta = "res/basededatos/registro.txt";
+        ArrayList<String> lista = lecturaArchivo(ruta);
+        ArrayList<String> newlista = new ArrayList<>();
+        int contador = 0;
+        for (String s : lista) {
+
+            String[] valores = s.split(" ");
+
+            if (valores[0].equals(id)) {
+                int cantidad1 = 0, cantidad2 = 0, cantidadfinal = 0;
+
+                cantidad1 = Integer.parseInt(valores[2]);
+                cantidad2 = Integer.parseInt(cantidad);
+                cantidadfinal = cantidad1 - cantidad2;
+                valores[2] = String.valueOf(cantidadfinal);
+            }
+            System.out.println(valores[2]);
+            newlista.add(valores[0] + " " + valores[1] + " " + valores[2] + " " + valores[3]);
+            contador++;
+        }
+        escrituraarchivo(newlista);
+    }
+
+
     public void inicializarDireccion() {
+
         String ruta = "res/shared/direcciones.txt";
         ArrayList<String> lista = lecturaArchivo(ruta);
         for (String s : lista) {
+
             String[] valores = s.split(" ");
             if (valores[0].compareTo("servidores") == 0) {
                 this.address = valores[2] + ":" + valores[3];
@@ -62,6 +98,25 @@ public class ServerControl {
         return lista;
     }
 
+    public void escrituraarchivo(ArrayList<String> Nlista) {
+        String ruta = "res/basededatos/registro.txt";
+        try {
+            File archivo = new File(ruta);
+            archivo.delete();
+            FileWriter escribir = new FileWriter(archivo, true);
+            for (int i = 0; i < Nlista.size(); i++) {
+                System.out.println(Nlista.get(i));
+                escribir.write(Nlista.get(i));
+                escribir.write("\r\n");
+            }
+            escribir.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("Archivo no encontrado.");
+            e.printStackTrace();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Abre un hilo a partir del cual enviara mensajes de request al healthcheck en
@@ -124,23 +179,36 @@ public class ServerControl {
             while (!Thread.currentThread().isInterrupted()) {
                 String mensaje = subcriber.recvStr();
                 System.out.println("SUB: " + mensaje);
+                String[] parts = mensaje.split("-");
+                System.out.println(parts[0]);
+                if (mensaje.equals("traer")) {
+                    leerbasededatos();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    DataOutputStream out = new DataOutputStream(baos);
+                    for (String element : this.basededatos) {
+                        out.writeUTF(element);
+                    }
+                    byte[] bytes = baos.toByteArray();
 
-                if (mensaje.equals("mensajedeprueba2")) {
+                    boolean test = publicher.send(bytes);
+                    System.out.println("test: " + test);
+                }
+                if (parts[0].equals("comprar")) {
+                    leerbasededatos();
+                    id = parts[2];
+                    cantidad = parts[4];
+                    escribirenlabasededatos();
 
 
+                    String msg = "se realizo la compra";
+                    byte[] bytes = msg.getBytes();
 
-                    String mensajederegreso = "Holamuybuenas";
-
-
-                    byte[] send = mensajederegreso.getBytes(ZMQ.CHARSET);
-
-
-                    String enviando = new String(send, ZMQ.CHARSET);
-                    System.out.println("envindo " + enviando);
-                    boolean test = publicher.send(send);
+                    boolean test = publicher.send(bytes);
                     System.out.println("test: " + test);
                 }
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

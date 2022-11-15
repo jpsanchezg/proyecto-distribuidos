@@ -1,0 +1,4 @@
+1 caramelos 10 5000
+2 barriletes 40 3000
+3 chicles 10 4000
+4 chocolates 20 3000

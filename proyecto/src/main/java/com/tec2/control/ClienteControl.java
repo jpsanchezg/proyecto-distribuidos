@@ -82,6 +82,7 @@ public class ClienteControl {
             }
             if (opcion == 3) {
                 String address = "tcp://" + this.address;
+                finalizo=true;
                 this.client.disconnect(address);
             }
         }

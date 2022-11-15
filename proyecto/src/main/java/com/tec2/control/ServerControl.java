@@ -163,8 +163,7 @@ public class ServerControl {
     public void subscribe() throws InterruptedException {
         try (ZContext context = new ZContext()) {
             System.out.println("iniciando servidor");
-            Socket subcriber = context.createSocket(SocketType.
-                SUB);
+            Socket subcriber = context.createSocket(SocketType.SUB);
             Socket publicher = context.createSocket(SocketType.PUB);
 
 

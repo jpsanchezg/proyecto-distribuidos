@@ -137,7 +137,10 @@ public class ServerControl {
                     //System.out.println("enviando: " + msg);
 
                     byte[] reply = client.recv();
-                    System.out.println("Recibi: " + new String(reply, ZMQ.CHARSET));
+                    String mensaje =new String(reply, ZMQ.CHARSET);
+                    if(!mensaje.equals("ok")){
+                        System.out.println("algopaso");
+                    }
                     Thread.sleep(500);
 
                 } catch (Exception e) {

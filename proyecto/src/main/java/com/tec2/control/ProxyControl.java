@@ -44,7 +44,7 @@ public class ProxyControl {
         for (String s : lista) {
 
             String[] valores = s.split(" ");
-            if (valores[0].compareTo("clientes") == 0) {
+            if (valores[0].compareTo("proxy") == 0) {
                 String address = "tcp://" + valores[2] + ":" + valores[3];
                 this.servidor.put("S1", address);
             }
@@ -84,12 +84,12 @@ class ProxyThread implements Runnable {
         }
         try (ZContext context = new ZContext()) {
 
-            Socket server = context.createSocket(SocketType.REP);
+            Socket server = context.createSocket(SocketType.PAIR);
             Socket publicher = context.createSocket(SocketType.PUB);
             Socket suscriber = context.createSocket(SocketType.SUB);
 
             System.out.println(servidores.get(tipo));
-            server.connect(servidores.get(tipo));
+            server.bind(servidores.get(tipo));
 
             System.out.println("Conectando con el servidor " + "tcp://" + this.servidores);
 
@@ -98,7 +98,7 @@ class ProxyThread implements Runnable {
             suscriber.subscribe("".getBytes());
             suscriber.connect("tcp://10.43.100.223:6666");
             Thread.sleep(1000);
-           // System.out.println("recibido del servidor pub = " + suscriber.recvStr());
+            // System.out.println("recibido del servidor pub = " + suscriber.recvStr());
 
             System.out.println("enviado");
             Thread.sleep(100);
@@ -107,21 +107,30 @@ class ProxyThread implements Runnable {
                 //Inicialmente no se establece un timeout, en caso de que no se ejecute ningun monitor.
                 byte[] reply = server.recv(0);
 
-                server.setReceiveTimeOut(5000);
+                server.setReceiveTimeOut(500000);
                 String metricaPh = new String(reply, ZMQ.CHARSET);
                 System.out.println("recibido " + metricaPh + " ");
-
-                System.out.println("enviando ok");
-                boolean test2 = publicher.send(metricaPh);
-                System.out.println("test del server sub = " + test2);
-
-
-                String mensaje = suscriber.recvStr();
-                System.out.println("recibido del servidor pub = " + mensaje);
-
-                byte[] reply2 = mensaje.getBytes(ZMQ.CHARSET);
-                boolean tests = server.send(reply2);
-                System.out.println("test server a cliente = " + tests);
+                String[] parts = metricaPh.split("-");
+                if (metricaPh.equals("traer")) {
+                    System.out.println("enviando ok");
+                    boolean test2 = publicher.send(metricaPh);
+                    System.out.println("test del server sub = " + test2);
+                    String mensaje = suscriber.recvStr();
+                    System.out.println("recibido del servidor pub = " + mensaje);
+                    byte[] reply2 = mensaje.getBytes(ZMQ.CHARSET);
+                    boolean tests = server.send(reply2);
+                    System.out.println("test server a cliente = " + tests);
+                }
+                if (parts[0].equals("comprar")) {
+                    System.out.println("enviando ok");
+                    boolean test2 = publicher.send(metricaPh);
+                    System.out.println("test del server sub = " + test2);
+                    String mensaje = suscriber.recvStr();
+                    System.out.println("recibido del servidor pub = " + mensaje);
+                    byte[] reply2 = mensaje.getBytes(ZMQ.CHARSET);
+                    boolean tests = server.send(reply2);
+                    System.out.println("test server a cliente = " + tests);
+                }
             }
             //ZMQ.proxy(publicher, subscriber, null);
         } catch (Exception e) {

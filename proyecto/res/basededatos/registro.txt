@@ -1,3 +1,3 @@
-1 caramelos 7 5000
-2 cosas 19 45555
+1 caramelos 0 5000
+2 cosas 14 45555
 3 nuts 32 44444

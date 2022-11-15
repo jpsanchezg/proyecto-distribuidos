@@ -22,6 +22,7 @@ public class ServerControl {
     float min, max;
 
     String id, cantidad;
+    String msg;
 
     public ServerControl(int tipo) {
         this.monitor = new ServerModel(tipo);
@@ -49,11 +50,23 @@ public class ServerControl {
 
             if (valores[0].equals(id)) {
                 int cantidad1 = 0, cantidad2 = 0, cantidadfinal = 0;
+                int precio = 0;
 
                 cantidad1 = Integer.parseInt(valores[2]);
                 cantidad2 = Integer.parseInt(cantidad);
-                cantidadfinal = cantidad1 - cantidad2;
-                valores[2] = String.valueOf(cantidadfinal);
+
+                if (cantidad1 >= cantidad2) {
+                    cantidadfinal = cantidad1 - cantidad2;
+                    valores[2] = String.valueOf(cantidadfinal);
+                    for (int i = 0; i < cantidad2; i++) {
+                        precio = precio + Integer.parseInt(valores[3]);
+                    }
+                    msg = "tienes que pagar: " + precio;
+                }else{
+                    msg = "Lo sentimos no hay la cantidad que tu deseas";
+                }
+
+
             }
             System.out.println(valores[2]);
             newlista.add(valores[0] + " " + valores[1] + " " + valores[2] + " " + valores[3]);
@@ -137,8 +150,8 @@ public class ServerControl {
                     //System.out.println("enviando: " + msg);
 
                     byte[] reply = client.recv();
-                    String mensaje =new String(reply, ZMQ.CHARSET);
-                    if(!mensaje.equals("ok")){
+                    String mensaje = new String(reply, ZMQ.CHARSET);
+                    if (!mensaje.equals("ok")) {
                         System.out.println("algopaso");
                     }
                     Thread.sleep(500);
@@ -202,7 +215,6 @@ public class ServerControl {
                     escribirenlabasededatos();
 
 
-                    String msg = "se realizo la compra";
                     byte[] bytes = msg.getBytes();
 
                     boolean test = publicher.send(bytes);

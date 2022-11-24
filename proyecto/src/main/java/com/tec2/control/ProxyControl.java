@@ -97,11 +97,10 @@ class ProxyThread implements Runnable {
 
             suscriber.subscribe("".getBytes());
             suscriber.connect("tcp://10.43.100.223:6666");
-            Thread.sleep(1000);
+
             // System.out.println("recibido del servidor pub = " + suscriber.recvStr());
 
             System.out.println("enviado");
-            Thread.sleep(100);
 
             while (!Thread.currentThread().isInterrupted()) {
                 //Inicialmente no se establece un timeout, en caso de que no se ejecute ningun monitor.

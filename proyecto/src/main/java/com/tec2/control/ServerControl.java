@@ -62,10 +62,9 @@ public class ServerControl {
                         precio = precio + Integer.parseInt(valores[3]);
                     }
                     msg = "tienes que pagar: " + precio;
-                }else{
+                } else {
                     msg = "Lo sentimos no hay la cantidad que tu deseas";
                 }
-
 
             }
             System.out.println(valores[2]);
@@ -74,7 +73,6 @@ public class ServerControl {
         }
         escrituraarchivo(newlista);
     }
-
 
     public void inicializarDireccion() {
 
@@ -87,11 +85,10 @@ public class ServerControl {
                 this.address = valores[2] + ":" + valores[3];
             }
             if (valores[0].compareTo(this.monitor.getId()) == 0) {
-                this.addressHealth = "*:" + valores[3];
+                    = "*:" + valores[3];
             }
         }
     }
-
 
     public ArrayList<String> lecturaArchivo(String ruta) {
 
@@ -147,7 +144,7 @@ public class ServerControl {
                 try {
                     String msg = String.valueOf(this.monitor.getTipoMonitor());
                     client.send(msg.getBytes(ZMQ.CHARSET), 0);
-                    //System.out.println("enviando: " + msg);
+                    // System.out.println("enviando: " + msg);
 
                     byte[] reply = client.recv();
                     String mensaje = new String(reply, ZMQ.CHARSET);
@@ -179,15 +176,13 @@ public class ServerControl {
             Socket subcriber = context.createSocket(SocketType.SUB);
             Socket publicher = context.createSocket(SocketType.PUB);
 
-
             String address = "tcp://" + this.address;
 
             subcriber.subscribe("".getBytes());
             subcriber.connect("tcp://10.43.100.229:6666");
 
             publicher.bind("tcp://10.43.100.223:6666");
-            Thread.sleep(1000);
-            Thread.sleep(100);
+
             System.out.println("listening to " + address);
             String topic = monitor.getId();
             System.out.println("topic: " + monitor.getTipoMonitor());
@@ -213,7 +208,6 @@ public class ServerControl {
                     id = parts[2];
                     cantidad = parts[4];
                     escribirenlabasededatos();
-
 
                     byte[] bytes = msg.getBytes();
 

@@ -1,15 +1,6 @@
 package com.tec2.model;
 
-	/**
-     * Clase que contiene los datos relevantes de un Monitor
-     * tipoMonitor - valor numerico que representa el tipo de metrica a monitorear
-     *  1 - Temperatura
-     *  2 - PH
-     *  3 - Oxigeno
-     * id - representacion textual del tipo de monitor
-     * archivo - ruta del archivo de configuracion de monitores
-     * port = TODO:BORRAR
-	 */
+
 
 public class ServerModel {
 

@@ -1,18 +1,6 @@
 package com.tec2.model;
 
-	/**
-     * Clase que contiene los datos relevantes de un Sensor
-     * tipo - valor numerico que representa el tipo de metrica a tomar
-     *  1 - Temperatura
-     *  2 - PH
-     *  3 - Oxigeno
-     * intervalo - tiempo en el que se generaran metricas
-     * archivo - ruta del archivo de configuracion de los sensores
-     * valor - unidad numerica que contendra la metrica a generar
-     * unidad - escala de la medida a tomar
-     * id - representacion textual del tipo de monitor
-     * port: TODO: BORRAR
-	 */
+
 public class ClienteModel {
 
     private int tipo;

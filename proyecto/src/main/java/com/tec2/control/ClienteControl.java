@@ -15,8 +15,7 @@ import org.zeromq.ZMQ.Socket;
 
 public class ClienteControl {
 
-    private float min, max;
-    private float correcto, incorrecto, errores;
+
     private String address;
 
     private ClienteModel cliente;
